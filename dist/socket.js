@@ -1,12 +1,12 @@
 "use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -119,7 +119,7 @@ var TRANSPORTS = {
   websocket: "websocket"
 };
 
-var Push = (function () {
+var Push = function () {
 
   // Initializes the Push
   //
@@ -128,7 +128,6 @@ var Push = (function () {
   // payload - The payload, for example `{user_id: 123}`
   // timeout - The push timeout in milliseconds
   //
-
   function Push(channel, event, payload, timeout) {
     _classCallCheck(this, Push);
 
@@ -243,9 +242,9 @@ var Push = (function () {
   }]);
 
   return Push;
-})();
+}();
 
-var Channel = exports.Channel = (function () {
+var Channel = exports.Channel = function () {
   function Channel(topic, params, socket) {
     var _this2 = this;
 
@@ -306,7 +305,7 @@ var Channel = exports.Channel = (function () {
   }, {
     key: "join",
     value: function join() {
-      var timeout = arguments.length <= 0 || arguments[0] === undefined ? this.timeout : arguments[0];
+      var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.timeout;
 
       if (this.joinedOnce) {
         throw "tried to join multiple times. 'join' can only be called a single time per channel instance";
@@ -348,7 +347,7 @@ var Channel = exports.Channel = (function () {
   }, {
     key: "push",
     value: function push(event, payload) {
-      var timeout = arguments.length <= 2 || arguments[2] === undefined ? this.timeout : arguments[2];
+      var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.timeout;
 
       if (!this.joinedOnce) {
         throw "tried to push '" + event + "' to '" + this.topic + "' before joining. Use channel.join() before pushing events";
@@ -382,7 +381,7 @@ var Channel = exports.Channel = (function () {
     value: function leave() {
       var _this3 = this;
 
-      var timeout = arguments.length <= 0 || arguments[0] === undefined ? this.timeout : arguments[0];
+      var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.timeout;
 
       var onClose = function onClose() {
         _this3.socket.log("channel", "leave " + _this3.topic);
@@ -426,7 +425,7 @@ var Channel = exports.Channel = (function () {
   }, {
     key: "rejoin",
     value: function rejoin() {
-      var timeout = arguments.length <= 0 || arguments[0] === undefined ? this.timeout : arguments[0];
+      var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.timeout;
       this.sendJoin(timeout);
     }
   }, {
@@ -447,9 +446,9 @@ var Channel = exports.Channel = (function () {
   }]);
 
   return Channel;
-})();
+}();
 
-var Socket = exports.Socket = (function () {
+var Socket = exports.Socket = function () {
 
   // Initializes the Socket
   //
@@ -479,11 +478,10 @@ var Socket = exports.Socket = (function () {
   //
   // For IE8 support use an ES5-shim (https://github.com/es-shims/es5-shim)
   //
-
   function Socket(endPoint) {
     var _this4 = this;
 
-    var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     _classCallCheck(this, Socket);
 
@@ -681,7 +679,7 @@ var Socket = exports.Socket = (function () {
   }, {
     key: "channel",
     value: function channel(topic) {
-      var chanParams = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var chanParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var chan = new Channel(topic, chanParams, this);
       this.channels.push(chan);
@@ -762,9 +760,9 @@ var Socket = exports.Socket = (function () {
   }]);
 
   return Socket;
-})();
+}();
 
-var LongPoll = exports.LongPoll = (function () {
+var LongPoll = exports.LongPoll = function () {
   function LongPoll(endPoint) {
     _classCallCheck(this, LongPoll);
 
@@ -855,7 +853,7 @@ var LongPoll = exports.LongPoll = (function () {
 
       Ajax.request("POST", this.endpointURL(), "application/json", body, this.timeout, this.onerror.bind(this, "timeout"), function (resp) {
         if (!resp || resp.status !== 200) {
-          _this9.onerror(status);
+          _this9.onerror(resp && resp.status);
           _this9.closeAndRetry();
         }
       });
@@ -869,9 +867,9 @@ var LongPoll = exports.LongPoll = (function () {
   }]);
 
   return LongPoll;
-})();
+}();
 
-var Ajax = exports.Ajax = (function () {
+var Ajax = exports.Ajax = function () {
   function Ajax() {
     _classCallCheck(this, Ajax);
   }
@@ -883,9 +881,9 @@ var Ajax = exports.Ajax = (function () {
         var req = new XDomainRequest(); // IE8, IE9
         this.xdomainRequest(req, method, endPoint, body, timeout, ontimeout, callback);
       } else {
-        var req = window.XMLHttpRequest ? new XMLHttpRequest() : // IE7+, Firefox, Chrome, Opera, Safari
+        var _req = window.XMLHttpRequest ? new XMLHttpRequest() : // IE7+, Firefox, Chrome, Opera, Safari
         new ActiveXObject("Microsoft.XMLHTTP"); // IE6, IE5
-        this.xhrRequest(req, method, endPoint, accept, body, timeout, ontimeout, callback);
+        this.xhrRequest(_req, method, endPoint, accept, body, timeout, ontimeout, callback);
       }
     }
   }, {
@@ -967,7 +965,7 @@ var Ajax = exports.Ajax = (function () {
   }]);
 
   return Ajax;
-})();
+}();
 
 Ajax.states = { complete: 4 };
 
@@ -985,7 +983,7 @@ Ajax.states = { complete: 4 };
 //    reconnectTimer.scheduleTimeout() // fires after 1000
 //
 
-var Timer = (function () {
+var Timer = function () {
   function Timer(callback, timerCalc) {
     _classCallCheck(this, Timer);
 
@@ -1019,4 +1017,4 @@ var Timer = (function () {
   }]);
 
   return Timer;
-})();
+}();
